@@ -1,5 +1,6 @@
 import time
 import RPi.GPIO as GPIO
+from colour import Color
 
 class RGBA():
     def __init__(self, r, g, b):
@@ -7,9 +8,9 @@ class RGBA():
         self.channel = [r, g, b]
         GPIO.setup(self.channel, GPIO.OUT)
         
-        self.r = GPIO.PWM(r, 60)
-        self.g = GPIO.PWM(g, 60)
-        self.b = GPIO.PWM(b, 60)
+        self.r = GPIO.PWM(r, 120)
+        self.g = GPIO.PWM(g, 120)
+        self.b = GPIO.PWM(b, 120)
         
         # Start PWM with 0% duty cycle
         self.r.start(0)
@@ -19,14 +20,21 @@ class RGBA():
     def setColor(self, r, g, b):
         print("Setting Color...")
         
-        # r = max(0, min(100, (100-(r / 255) * 100)))
-        # g = max(0, min(100, (100-(g / 255) * 100)))
-        # b = max(0, min(100, (100-(b / 255) * 100)))
-        
         r = 100 - (r / 255) * 100
         g = 100 - (g / 255) * 100
         b = 100 - (b / 255) * 100
         
+        self.r.ChangeDutyCycle(r)
+        self.g.ChangeDutyCycle(g)
+        self.b.ChangeDutyCycle(b)
+        
+     # 0 - 100 (for color module)   
+    def setRGB(self, rgb):
+
+        r = abs(rgb[0] * 100 - 100)
+        g = abs(rgb[1] * 100 - 100)
+        b = abs(rgb[2] * 100 - 100)
+        # print(r, b, b)
         self.r.ChangeDutyCycle(r)
         self.g.ChangeDutyCycle(g)
         self.b.ChangeDutyCycle(b)
@@ -41,7 +49,22 @@ class RGBA():
 try:
     GPIO.cleanup()
     led = RGBA(19, 13, 12)
-    led.setColor(162, 210, 255)  
-    time.sleep(3)           
+
+    # while True:
+    #     col = input("Enter any color: ")
+    #     led.setRGB(Color(col).rgb) 
+
+    print("Generating Colors..")    
+    while True:
+        for c in Color("red").range_to(Color("blue"), 100):
+            led.setRGB(c.rgb)
+            time.sleep(0.01)
+    
+        for c in Color("blue").range_to(Color("red"), 100):
+            led.setRGB(c.rgb)
+            time.sleep(0.01)
+except:
+    print("Exiting")
+         
 finally:
     led.cleanup()
