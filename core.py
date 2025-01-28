@@ -39,6 +39,7 @@ class RGBA():
 
 
 try:
+    GPIO.cleanup()
     led = RGBA(19, 13, 12)
     led.setColor(162, 210, 255)  
     time.sleep(3)           
